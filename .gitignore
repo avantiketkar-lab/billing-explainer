@@ -1,0 +1,7 @@
+node_modules/
+seed.sql
+.wrangler/
+.dev.vars
+.backup-pre-polling/
+.DS_Store
+*.log

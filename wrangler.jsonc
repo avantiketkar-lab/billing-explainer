@@ -1,0 +1,80 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "billing-explainer",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-09-06",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS"
+	},
+	// NOTE: miniflare keys LOCAL D1 storage by database_id, so changing this value
+	// silently points local dev at a different (empty) database. Leave it alone
+	// unless you are deploying — `wrangler deploy` needs a real id from
+	// `npx wrangler d1 create billing`. Local dev never reads it as an identifier.
+	"d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "billing",
+      // Real id from `npx wrangler d1 create billing`. Local dev keys its own
+      // database off this value, so changing it silently swaps the local DB.
+      // No `remote: true` here on purpose: local dev must stay local so the
+      // seeded fixture and the audit log live on this machine.
+      "database_id": "b89283e9-eb42-43c0-a58b-58fdb1403038"
+    }
+  ],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "AUDIT",
+				"class_name": "AuditLog"
+			},
+			{
+				"name": "MCP_AGENT",
+				"class_name": "BillingExplainerMCP"
+			},
+			{
+				"name": "AGENT",
+				"class_name": "BillingAgent"
+			},
+			{
+				"name": "LIMITER",
+				"class_name": "DemoLimiter"
+			}
+		]
+	},
+	"workflows": [
+		{
+			"name": "billing-investigation",
+			"binding": "INVESTIGATION",
+			"class_name": "BillingInvestigation"
+		}
+	],
+	"migrations": [
+		{
+			"tag": "v1",
+			// SQLite-backed DOs: the audit log lives in the object's own storage.
+			"new_sqlite_classes": [
+				"AuditLog",
+				"BillingExplainerMCP",
+				"BillingAgent",
+				"DemoLimiter"
+			]
+		}
+	],
+	// Workers AI has no local emulator — workerd cannot serve it, which is what
+	// "Binding AI needs to be run remotely" means. `remote: true` keeps the
+	// Worker, D1 and the Durable Objects local (so the seeded database and the
+	// audit log stay on this machine) while proxying JUST this binding to
+	// Cloudflare. Requires `wrangler login`.
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
+	"observability": {
+		"enabled": true
+	}
+	// SESSION_SECRET is a secret, not a var:  wrangler secret put SESSION_SECRET
+}

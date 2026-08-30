@@ -1,0 +1,41 @@
+{
+  "name": "billing-explainer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute billing --local --file=./schema.sql",
+    "db:seed": "npm run seed:sql && wrangler d1 execute billing --local --file=./seed.sql",
+    "verify:fixture": "node seed.mjs --verify",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "seed:sql": "node seed.mjs --emit > seed.sql",
+    "pretest": "node seed.mjs --emit > seed.sql",
+    "test:node": "vitest run --project node",
+    "test:workers": "vitest run --project workers",
+    "predev": "node scripts/ensure-dev-vars.mjs",
+    "db:init:remote": "wrangler d1 execute billing --remote --file=./schema.sql",
+    "db:seed:remote": "npm run seed:sql && wrangler d1 execute billing --remote --file=./seed.sql"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.23.0",
+    "agents": "^0.2.0",
+    "ai": "^5.0.249",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.8.0",
+    "@cloudflare/workers-types": "^5.20260829.1",
+    "@types/node": "^26.4.0",
+    "@vitest/runner": "^3.2.4",
+    "@vitest/snapshot": "^3.2.4",
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.0.0"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "1.23.0"
+  }
+}

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Billing Explainer</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#6b7684; --line:#dde3ea; --accent:#1F3A5F; --warn:#8a5300; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#15181c; --fg:#e8eaed; --muted:#9aa4b2; --line:#2c333c; --accent:#7fa8dd; --warn:#e0a33c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  header { border-bottom:1px solid var(--line); padding:14px 20px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:15px; margin:0; color:var(--accent); font-weight:650; }
+  .who { display:flex; gap:6px; align-items:center; font-size:13px; }
+  select, input, button { font:inherit; padding:6px 9px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); }
+  button { background:var(--accent); color:#fff; border-color:var(--accent); cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  main { display:grid; grid-template-columns: minmax(0,1.35fr) minmax(0,1fr); gap:0; min-height:calc(100vh - 58px); }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  section { padding:18px 20px; min-width:0; }
+  .right { border-left:1px solid var(--line); background:color-mix(in srgb, var(--fg) 3%, var(--bg)); }
+  @media (max-width: 860px) { .right { border-left:none; border-top:1px solid var(--line); } }
+  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin:0 0 10px; }
+  .ask { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .ask input { flex:1; min-width:180px; }
+  .lbl { color:var(--muted); font-size:12.5px; align-self:center; }
+  .answer { white-space:pre-wrap; border-left:3px solid var(--accent); padding:10px 14px; background:color-mix(in srgb, var(--accent) 5%, var(--bg)); border-radius:0 6px 6px 0; }
+  .withheld { border-left-color:var(--warn); background:color-mix(in srgb, var(--warn) 8%, var(--bg)); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; }
+  .problems { color:var(--warn); font-size:12.5px; margin-top:8px; }
+  ol.trace { list-style:none; margin:0; padding:0; counter-reset:s; }
+  ol.trace li { counter-increment:s; border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:7px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+  ol.trace li::before { content:counter(s); display:inline-block; width:18px; color:var(--muted); }
+  .tool { color:var(--accent); font-weight:600; }
+  .args { color:var(--muted); word-break:break-all; }
+  .ms { float:right; color:var(--muted); }
+  ul.manifest { list-style:none; margin:0 0 18px; padding:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+  ul.manifest li { padding:3px 0; border-bottom:1px dotted var(--line); }
+  .note { color:var(--muted); font-size:12.5px; margin-top:6px; }
+  .spin { color:var(--muted); }
+  .banner { background:color-mix(in srgb, var(--warn) 12%, var(--bg)); border-bottom:1px solid var(--warn);
+            padding:9px 20px; font-size:12.5px; color:var(--fg); }
+  .banner b { color:var(--warn); }
+  .banner span { color:var(--muted); }
+  .rolehint { font-size:11.5px; color:var(--warn); margin-left:2px; }
+</style>
+</head>
+<body>
+<div class="banner">
+  <b>Demo build — not production.</b>
+  All billing data is <b>synthetic</b> (2 fictional accounts, 3 months).
+  <b>There is no login:</b> the role selector <b>simulates</b> an identity rather than
+  authenticating one — it demonstrates how scope is <i>enforced</i>, not how it is
+  <i>established</i>. <span>Coverage is partial and several tools are specified but not
+  implemented; see the README.</span>
+</div>
+<header>
+  <h1>Billing Explainer</h1>
+  <div class="who">
+    <label for="role">Simulate role</label>
+    <select id="role">
+      <option value="support_engineer">Support engineer (all accounts)</option>
+      <option value="customer">Customer — Northwind Analytics only</option>
+    </select>
+  </div>
+  <span class="note" id="scope"></span>
+    <span class="rolehint">demo identity — not authenticated</span>
+</header>
+
+<main>
+  <section>
+    <h2>Ask</h2>
+    <div class="ask">
+      <input id="q" value="Why did Northwind Analytics' invoice go up in July?">
+    </div>
+    <div class="ask">
+      <input id="acct" value="Northwind Analytics" style="max-width:190px">
+      <label class="lbl" for="pb">compare</label>
+      <select id="pb">
+        <option value="2026-07-01" selected>July 2026</option>
+        <option value="2026-06-01">June 2026</option>
+        <option value="2026-05-01">May 2026</option>
+      </select>
+      <label class="lbl" for="pa">against</label>
+      <select id="pa">
+        <option value="2026-06-01" selected>June 2026</option>
+        <option value="2026-05-01">May 2026</option>
+        <option value="2026-07-01">July 2026</option>
+      </select>
+      <button id="go">Explain</button>
+    </div>
+    <h2>Answer</h2>
+    <div id="answer" class="answer spin">Ask a question to begin.</div>
+    <div id="problems" class="problems"></div>
+    <p class="note">
+      <b>The account and the two periods select which invoices are compared.</b> The question
+      text shapes the wording of the explanation, not the arithmetic &mdash; the comparison is
+      computed by <code>billing_compare_invoices</code>, never by the model. Every figure is
+      validated against the evidence before it is shown; if validation fails the narration is
+      withheld and the computed ranking is shown instead.
+    </p>
+  </section>
+
+  <section class="right">
+    <h2>Tools this session may call</h2>
+    <ul class="manifest" id="manifest"><li class="spin">loading…</li></ul>
+    <h2>Tool-call trace</h2>
+    <ol class="trace" id="trace"><li class="spin">no calls yet</li></ol>
+    <p class="note">
+      Switch role and ask the same question. The manifest changes, the answer changes,
+      and a request for an account outside scope is denied and written to the audit log.
+    </p>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let session = crypto.randomUUID();
+
+async function refresh() {
+  session = crypto.randomUUID();           // new role => new session, new principal
+  const { tools, scope } = await getJson(
+    `/api/manifest?role=${$('role').value}&session=${session}`);
+  $('scope').textContent = `scope: ${scope.join(', ') || '(none)'}`;
+  $('manifest').innerHTML = tools.map(t =>
+    `<li><span class="tool">${t.name}</span></li>`).join('') || '<li>(none)</li>';
+  $('trace').innerHTML = '<li class="spin">no calls yet</li>';
+  $('answer').textContent = 'Ask a question to begin.';
+  $('answer').className = 'answer spin';
+  $('problems').textContent = '';
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function getJson(url, opts) {
+  const r = await fetch(url, opts);
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) {
+    // Surface what actually came back instead of letting JSON.parse say
+    // "Unexpected token '<'", which tells nobody anything.
+    throw new Error(`${r.status} ${r.statusText}: ${(await r.text()).slice(0, 200)}`);
+  }
+  const body = await r.json();
+  if (body && body.error) throw new Error(body.error);
+  return body;
+}
+
+function renderTurn(turn) {
+  $('answer').textContent = turn.content;
+  $('answer').className = 'answer' + (turn.withheld ? ' withheld' : '');
+  $('problems').textContent = (turn.problems || []).join(' · ');
+  $('trace').innerHTML = (turn.trace || []).map((t) =>
+    `<li><span class="tool">${t.tool}</span><span class="ms">${t.ms}ms</span>
+      <div class="args">${JSON.stringify(t.args)}</div></li>`).join('')
+    || '<li>no calls</li>';
+}
+
+async function ask() {
+  $('go').disabled = true;
+  $('answer').textContent = 'Investigating…';
+  $('answer').className = 'answer spin';
+  $('problems').textContent = '';
+  const role = $('role').value;
+
+  if ($('pa').value === $('pb').value) {
+    $('answer').textContent = 'Pick two different periods to compare.';
+    $('answer').className = 'answer withheld';
+    $('go').disabled = false;
+    return;
+  }
+
+  try {
+    // Start the workflow. The server returns an id immediately; waiting for a
+    // long job inside a request handler is what the Workers runtime kills.
+    const { instance_id } = await getJson('/api/ask', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        role, session,
+        question: $('q').value, identifier: $('acct').value,
+        period_a: $('pa').value, period_b: $('pb').value,
+      }),
+    });
+
+    const deadline = Date.now() + 90000;
+    while (Date.now() < deadline) {
+      await sleep(700);
+      const s = await getJson(
+        `/api/status?role=${role}&session=${session}&instance_id=${encodeURIComponent(instance_id)}`);
+      if (s.state === 'running') continue;
+      renderTurn(s.turn);
+      return;
+    }
+    throw new Error('timed out after 90s waiting for the investigation');
+  } catch (e) {
+    $('answer').textContent = 'Request failed: ' + e.message;
+    $('answer').className = 'answer withheld';
+  } finally {
+    $('go').disabled = false;
+  }
+}
+
+$('role').addEventListener('change', refresh);
+$('go').addEventListener('click', ask);
+refresh();
+</script>
+</body>
+</html>

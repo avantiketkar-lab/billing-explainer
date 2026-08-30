@@ -1,0 +1,8 @@
+# Signs the session tokens that carry account scope. Never commit the real file.
+# `npm run dev` generates .dev.vars automatically if it is missing.
+SESSION_SECRET=replace-with-a-long-random-string
+
+# Optional: override the Workers AI model without touching code.
+# Useful if the default is not available on your account.
+# Model ids vary by account. List yours with: npx wrangler ai models list
+# AI_MODEL=@cf/meta/llama-3.1-8b-instruct-fp8
