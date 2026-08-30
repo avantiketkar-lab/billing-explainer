@@ -31,7 +31,9 @@ Three answers this repo commits to:
 - **`account_id` in a tool argument is a selector, not an authorization claim.** Scope rides in a signed token bound to the session; model output can never widen it. A refusal is recorded with the account that was asked for.
 - **Compute in code, narrate in the model.** Invoice diffing is a full outer join, not a model task — arithmetic over a revenue document is where a fluent wrong answer is most expensive and least detectable.
 
-**→ [Walkthrough with screenshots](docs/WALKTHROUGH.md)** · **[Why it's built this way](docs/DESIGN.md)**
+**→ [Walkthrough with screenshots](docs/WALKTHROUGH.md)** · **[Why it's built this way](docs/DESIGN.md)** · **[Prompt history](docs/PROMPT-HISTORY.pdf)**
+
+*The assignment asks for prompt history. It's in [`docs/PROMPT-HISTORY.pdf`](docs/PROMPT-HISTORY.pdf) — the six prompts that decided the design, verbatim, and the nine defects found once it ran and then once it deployed, each with its real cause.*
 
 ---
 
