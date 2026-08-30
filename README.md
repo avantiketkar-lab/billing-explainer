@@ -6,6 +6,8 @@ Built on Cloudflare Workers, the Agents SDK, D1, Durable Objects and Workers AI.
 
 ### ▶ **[Try it: billing-explainer.avanti-b4d.workers.dev](https://billing-explainer.avanti-b4d.workers.dev)**
 
+### 📄 **[Prompt history (the assignment's required artifact)](docs/PROMPT-HISTORY.pdf)**
+
 *Demo build. All data is synthetic — two fictional accounts, three months. There
 is no login: the role selector **simulates** an identity rather than
 authenticating one, which is the point of [§ "no login"](#about-the-demo) below.
@@ -32,8 +34,6 @@ Three answers this repo commits to:
 - **Compute in code, narrate in the model.** Invoice diffing is a full outer join, not a model task — arithmetic over a revenue document is where a fluent wrong answer is most expensive and least detectable.
 
 **→ [Walkthrough with screenshots](docs/WALKTHROUGH.md)** · **[Why it's built this way](docs/DESIGN.md)** · **[Prompt history](docs/PROMPT-HISTORY.pdf)**
-
-*The assignment asks for prompt history. It's in [`docs/PROMPT-HISTORY.pdf`](docs/PROMPT-HISTORY.pdf) — the six prompts that decided the design, verbatim, and the nine defects found once it ran and then once it deployed, each with its real cause.*
 
 ---
 
